@@ -245,6 +245,24 @@ header h1 {
     color: var(--text-secondary);
 }
 
+.sources-content a {
+    color: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+}
+
+.sources-content a:hover,
+.sources-content a:focus-visible {
+    color: var(--text-primary);
+    text-decoration-style: solid;
+}
+
+.sources-content a:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
 /* Markdown formatting styles */
 .message-content h1,
 .message-content h2,

@@ -120,21 +120,56 @@ function addMessage(content, type, sources = null, isWelcome = false) {
     const displayContent = type === 'assistant' ? marked.parse(content) : escapeHtml(content);
     
     let html = `<div class="message-content">${displayContent}</div>`;
-    
+
     if (sources && sources.length > 0) {
         html += `
             <details class="sources-collapsible">
                 <summary class="sources-header">Sources</summary>
-                <div class="sources-content">${sources.join(', ')}</div>
+                <div class="sources-content"></div>
             </details>
         `;
     }
-    
+
     messageDiv.innerHTML = html;
+
+    // Build source links via the DOM so labels and URLs are never parsed as HTML
+    if (sources && sources.length > 0) {
+        const sourcesContent = messageDiv.querySelector('.sources-content');
+        sources.forEach((source, index) => {
+            if (index > 0) sourcesContent.append(', ');
+            sourcesContent.append(createSourceElement(source));
+        });
+    }
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
     return messageId;
+}
+
+// Render a source as a link to its lesson page (URL hidden), or plain text if it has no safe link
+function createSourceElement(source) {
+    if (isSafeUrl(source.url)) {
+        const link = document.createElement('a');
+        link.href = source.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = source.label;
+        return link;
+    }
+    const span = document.createElement('span');
+    span.textContent = source.label;
+    return span;
+}
+
+// Only allow http(s) links so stored data can't inject javascript: URLs
+function isSafeUrl(url) {
+    if (!url) return false;
+    try {
+        const protocol = new URL(url).protocol;
+        return protocol === 'http:' || protocol === 'https:';
+    } catch {
+        return false;
+    }
 }
 
 // Helper function to escape HTML for user messages
