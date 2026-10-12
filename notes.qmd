@@ -1,0 +1,10 @@
+---
+
+
+---
+
+### notes 
+I created this to record some of my thoughts and observations while working on this project.
+I created this project but its folder strcutures and organizations is different than those that the course is trying to teach. I wanted to experiment with my own way of organizing the project to see if it could improve my workflow and understanding.
+
+This is created for better tracking of my progress and understanding throughout the project. 
