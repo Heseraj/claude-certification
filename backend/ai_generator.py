@@ -33,12 +33,17 @@ Provide only the direct answer to what was asked.
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
         
-        # Pre-build base API parameters
+        # Pre-build base API parameters. Current models reject sampling params
+        # (temperature) and always think, so leave headroom beyond the answer itself.
         self.base_params = {
             "model": self.model,
-            "temperature": 0,
-            "max_tokens": 800
+            "max_tokens": 16000
         }
+
+    @staticmethod
+    def _extract_text(response) -> str:
+        """Return the text blocks of a response, skipping thinking blocks"""
+        return "".join(block.text for block in response.content if block.type == "text")
     
     def generate_response(self, query: str,
                          conversation_history: Optional[str] = None,
@@ -84,7 +89,7 @@ Provide only the direct answer to what was asked.
             return self._handle_tool_execution(response, api_params, tool_manager)
         
         # Return direct response
-        return response.content[0].text
+        return self._extract_text(response)
     
     def _handle_tool_execution(self, initial_response, base_params: Dict[str, Any], tool_manager):
         """
@@ -132,4 +137,4 @@ Provide only the direct answer to what was asked.
         
         # Get final response
         final_response = self.client.messages.create(**final_params)
-        return final_response.content[0].text
+        return self._extract_text(final_response)
