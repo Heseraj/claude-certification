@@ -6,7 +6,7 @@ let currentSessionId = null;
 let currentRequest = null; // AbortController for the in-flight query, if any
 
 // DOM elements
-let chatMessages, chatInput, sendButton, newChatButton, totalCourses, courseTitles;
+let chatMessages, chatInput, sendButton, newChatButton, totalCourses, courseTitles, themeToggle;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     newChatButton = document.getElementById('newChatButton');
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
-    
+    themeToggle = document.getElementById('themeToggle');
+
+    updateThemeToggleLabel();
     setupEventListeners();
     createNewSession();
     loadCourseStats();
@@ -34,6 +36,9 @@ function setupEventListeners() {
     // New chat
     newChatButton.addEventListener('click', startNewChat);
 
+    // Theme toggle (a native <button>, so Enter/Space work out of the box)
+    themeToggle.addEventListener('click', toggleTheme);
+
     // Suggested questions
     document.querySelectorAll('.suggested-item').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -44,6 +49,40 @@ function setupEventListeners() {
     });
 }
 
+// Theme Functions
+function getCurrentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+function toggleTheme() {
+    const root = document.documentElement;
+    const nextTheme = getCurrentTheme() === 'light' ? 'dark' : 'light';
+
+    // Crossfade colors only for the duration of the switch
+    root.classList.add('theme-transition');
+    window.setTimeout(() => root.classList.remove('theme-transition'), 300);
+
+    if (nextTheme === 'light') {
+        root.setAttribute('data-theme', 'light');
+    } else {
+        root.removeAttribute('data-theme');
+    }
+
+    try {
+        localStorage.setItem('theme', nextTheme);
+    } catch (e) {
+        // Storage unavailable (e.g. private mode): theme just won't persist
+    }
+
+    updateThemeToggleLabel();
+}
+
+// Describe the action the button performs, for screen readers and the tooltip
+function updateThemeToggleLabel() {
+    const label = getCurrentTheme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+    themeToggle.setAttribute('aria-label', label);
+    themeToggle.setAttribute('title', label);
+}
 
 // Chat Functions
 async function sendMessage() {
