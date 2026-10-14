@@ -33,3 +33,7 @@ Thumbs.db
 
 # Playwright 
 .playwright-mcp/
+
+
+# adding trees 
+.trees/
