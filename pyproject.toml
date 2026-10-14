@@ -17,6 +17,9 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "black>=26.10.1",
+    "flake8>=7.4.1",
+    "isort>=9.0.2",
 ]
 
 [tool.pytest.ini_options]
@@ -29,3 +32,18 @@ markers = [
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+extend-exclude = '''
+/(
+    backend/chroma_db
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["backend"]
+skip_glob = ["backend/chroma_db/*"]

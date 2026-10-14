@@ -1,0 +1,9 @@
+[flake8]
+max-line-length = 88
+# E203/W503/E701: conflict with black's style. E501: black owns line length
+# (it deliberately leaves long string literals unsplit).
+extend-ignore = E203, W503, E701, E501
+# app.py must call warnings.filterwarnings() before its imports
+per-file-ignores =
+    backend/app.py: E402
+exclude = .venv, .git, __pycache__, backend/chroma_db, .trees
