@@ -6,6 +6,7 @@ the server is started from `backend/`. Instead, `create_test_app` rebuilds the
 same API routes against an injected (mocked) RAG system, and serves a stub page
 at `/` in place of the static frontend.
 """
+
 from typing import List, Optional
 from unittest.mock import MagicMock
 
@@ -16,6 +17,7 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 # --- Pydantic models (mirror backend/app.py) --------------------------------
+
 
 class QueryRequest(BaseModel):
     query: str
@@ -39,6 +41,7 @@ class CourseStats(BaseModel):
 
 
 # --- Test app factory --------------------------------------------------------
+
 
 def create_test_app(rag_system) -> FastAPI:
     """Build an app with the same API routes as backend/app.py, minus static files."""
@@ -81,6 +84,7 @@ def create_test_app(rag_system) -> FastAPI:
 
 # --- Test data ---------------------------------------------------------------
 
+
 @pytest.fixture
 def sample_sources():
     return [
@@ -98,6 +102,7 @@ def sample_analytics():
 
 
 # --- Mocks and clients -------------------------------------------------------
+
 
 @pytest.fixture
 def mock_rag_system(sample_sources, sample_analytics):

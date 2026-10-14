@@ -1,4 +1,5 @@
 """API endpoint tests: request validation, response shape, and error handling."""
+
 import pytest
 
 
@@ -15,7 +16,9 @@ class TestQueryEndpoint:
         mock_rag_system.query.assert_called_once_with("What is MCP?", "session_1")
 
     def test_query_reuses_given_session(self, client, mock_rag_system):
-        resp = client.post("/api/query", json={"query": "And lesson 2?", "session_id": "abc"})
+        resp = client.post(
+            "/api/query", json={"query": "And lesson 2?", "session_id": "abc"}
+        )
 
         assert resp.status_code == 200
         assert resp.json()["session_id"] == "abc"
@@ -67,7 +70,10 @@ class TestCoursesEndpoint:
         assert resp.json() == sample_analytics
 
     def test_courses_empty_catalog(self, client, mock_rag_system):
-        mock_rag_system.get_course_analytics.return_value = {"total_courses": 0, "course_titles": []}
+        mock_rag_system.get_course_analytics.return_value = {
+            "total_courses": 0,
+            "course_titles": [],
+        }
 
         resp = client.get("/api/courses")
 
