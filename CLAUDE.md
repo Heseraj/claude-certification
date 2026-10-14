@@ -19,7 +19,14 @@ cd backend && uv run uvicorn app:app --reload --port 8000   # manual start
 
 - The server **must be started from `backend/`**: `app.py` uses relative paths `../docs`, `../frontend`, and `./chroma_db`.
 - UI at http://localhost:8000, Swagger at http://localhost:8000/docs.
-- There are no tests, linter, or build step configured. `main.py` at the root is an unused placeholder.
+- There are no tests or build step configured. `main.py` at the root is an unused placeholder.
+
+**Code quality** (dev deps: black, isort, flake8; config in `pyproject.toml` and `.flake8`):
+```bash
+./scripts/format.sh    # auto-fix: isort imports, then black formatting
+./scripts/check.sh     # verify only (isort --check, black --check, flake8); non-zero exit on failure
+```
+Run `check.sh` before committing. flake8 ignores E501 (black owns line length) and E402 in `app.py` (the `warnings` filter must precede imports).
 
 ## Architecture
 
