@@ -1,3 +1,4 @@
+import json
 from typing import Dict, Any, Optional, Protocol
 from abc import ABC, abstractmethod
 from vector_store import VectorStore, SearchResults
@@ -119,6 +120,71 @@ class CourseSearchTool(Tool):
         self.last_sources = sources
         
         return "\n\n".join(formatted)
+
+
+class CourseOutlineTool(Tool):
+    """Tool for retrieving a course outline (title, link, lesson list) from the course catalog"""
+
+    def __init__(self, vector_store: VectorStore):
+        self.store = vector_store
+        self.last_sources = []  # Track sources ({"label", "url"} dicts) from last lookup
+
+    def get_tool_definition(self) -> Dict[str, Any]:
+        """Return Anthropic tool definition for this tool"""
+        return {
+            "name": "get_course_outline",
+            "description": "Get the outline of a course: its title, link, and the complete list of lessons (number and title)",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "course_title": {
+                        "type": "string",
+                        "description": "Course title (partial matches work, e.g. 'MCP', 'Introduction')"
+                    }
+                },
+                "required": ["course_title"]
+            }
+        }
+
+    def execute(self, course_title: str) -> str:
+        """
+        Look up a course in the catalog and return its outline.
+
+        Args:
+            course_title: Full or partial course title
+
+        Returns:
+            Formatted course outline or error message
+        """
+        # Fuzzy-resolve the partial title to an exact catalog title
+        resolved_title = self.store._resolve_course_name(course_title)
+        if not resolved_title:
+            return f"No course found matching '{course_title}'."
+
+        try:
+            results = self.store.course_catalog.get(ids=[resolved_title])
+        except Exception as e:
+            return f"Error retrieving course outline: {e}"
+
+        if not results or not results.get('metadatas'):
+            return f"No course found matching '{course_title}'."
+
+        metadata = results['metadatas'][0]
+        title = metadata.get('title', resolved_title)
+        course_link = metadata.get('course_link')
+        lessons = json.loads(metadata.get('lessons_json') or "[]")
+
+        lines = [f"Course Title: {title}", f"Course Link: {course_link or 'N/A'}", "Lessons:"]
+        for lesson in sorted(lessons, key=lambda l: l.get('lesson_number', 0)):
+            lines.append(f"- Lesson {lesson.get('lesson_number')}: {lesson.get('lesson_title')}")
+        if not lessons:
+            lines.append("- (no lessons listed)")
+
+        # Store the course as a source for the UI
+        self.last_sources = [{"label": title, "url": course_link}]
+
+        return "\n".join(lines)
+
 
 class ToolManager:
     """Manages available tools for the AI"""

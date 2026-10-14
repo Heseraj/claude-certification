@@ -464,6 +464,7 @@ header h1 {
 }
 
 /* Sidebar Headers */
+.new-chat-button,
 .stats-header,
 .suggested-header {
     font-size: 0.875rem;
@@ -480,14 +481,24 @@ header h1 {
     letter-spacing: 0.5px;
 }
 
+.new-chat-button:focus,
 .stats-header:focus,
 .suggested-header:focus {
     color: var(--primary-color);
 }
 
+.new-chat-button:hover,
 .stats-header:hover,
 .suggested-header:hover {
     color: var(--primary-color);
+}
+
+/* Buttons don't inherit the page font by default */
+.new-chat-button {
+    font-family: inherit;
+    line-height: inherit;
+    width: 100%;
+    text-align: left;
 }
 
 .stats-header::-webkit-details-marker,
@@ -495,13 +506,22 @@ header h1 {
     display: none;
 }
 
+.new-chat-button::before,
 .stats-header::before,
 .suggested-header::before {
     content: '▶';
     display: inline-block;
+    width: 0.75rem;
+    text-align: center;
     margin-right: 0.5rem;
     transition: transform 0.2s ease;
     font-size: 0.75rem;
+}
+
+.new-chat-button::before {
+    content: '+';
+    font-size: 1rem;
+    line-height: 1;
 }
 
 details[open] .stats-header::before,
